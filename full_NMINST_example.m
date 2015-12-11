@@ -1,3 +1,14 @@
+% The HFIRST algorithm is described in the paper:
+% Orchard, G.; Meyer, C.; Etienne-Cummings, R.; Posch, C.; Thakor, N.; and Benosman, R., "HFIRST: A Temporal Approach to Object Recognition," Pattern Analysis and Machine Intelligence, IEEE Transactions on vol.37, no.10, pp.2028-2040, Oct. 2015
+% 
+% On N-MNIST, this method achieves accuracy of:
+% 61.34% (soft classifier) 
+% 76.40% (hard classifier)
+% as described in the paper:
+% Orchard, G.; Cohen, G.; Jayawant, A.; and Thakor, N.  “Converting Static Image Datasets to Spiking Neuromorphic Datasets Using Saccades", Frontiers in Neuroscience, vol.9, no.437, Oct. 2015
+% Accuracy is slightly higher than reported in the paper due to minor
+% changes in preprocessing
+%  
 % This file has 3 parts. It shows complete use of HFIRST training and
 % testing. It assumes a directory structure where training and testing
 % examples are in separate directories, with each class being a separate

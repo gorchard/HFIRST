@@ -1,7 +1,33 @@
-function output_spikes = S1(TD, gabor_weight, threshold, decay_rate, refractory_period)
-%% describe the function here
-%should actually split this into two... one part for generating the
-%filters, and another for applying them
+function output_spikes = S1(TD, gabor_weight, S1_params)
+%% output_spikes = S1(TD, gabor_weight, S1_params)
+% Calculates the spiking S1 layer response to the Temporal Difference data
+% "TD"
+% TD.x -> vector of event X-addresses (in pixels)
+% TD.y -> vector of event Y-addresses (in pixels)
+% TD.ts -> vector of event timestamps (in microseconds)
+% TD.p -> vector of event polarities (1 or -1 for ON or OFF events
+% respectively)
+% all fields are strictly integers only
+%
+% "gabor_weights" is a tensor containing all the gabor weight coefficients
+% (in mV). "gabor_weights" is created using the "init_Gabor" function. An
+% example can be found in the "HFIRST" function.
+% 
+% "S1_params" defines the neuron parameters (threshold, decay, and
+% refractory period)
+% 'S1_params.threshold' is threshold in mV
+% 'S1_params.decay_rate' is decay rate in mV per ms
+% 'S1_params.refractory_period' is the refractory period in ms
+% 
+% for full details see:
+% Orchard, G.; Meyer, C.; Etienne-Cummings, R.; Posch, C.; Thakor, N.; and Benosman, R., "HFIRST: A Temporal Approach to Object Recognition," Pattern Analysis and Machine Intelligence, IEEE Transactions on vol.37, no.10, pp.2028-2040, Oct. 2015
+
+if(sum(~isfield(S1_params,{'threshold', 'decay_rate', 'refractory_period'}))>0)
+    error('Error: "S1_params" have not been correctly set. "S1_params" must contain the fields "threshold" (in mV), "decay_rate" (in mV per ms), and "refractory_period" (in ms)');
+end
+threshold           = S1_params.threshold;
+decay_rate          = S1_params.decay_rate;
+refractory_period   = S1_params.refractory_period;
 
 %% convert arguments to integers and scale timestamps to milliseconds (some loss of precision)
 decay_rate          = int32(decay_rate); %mV per millisecond

@@ -1,37 +1,64 @@
 function [S1out, C1out, S2out, C2out] = HFIRST(TD, S2_path, training)
-%uncomment the line below to show the input data. Two polarities of
-%events will be shown in two different colours
+% HFIRST is described in the paper:
+% Orchard, G.; Meyer, C.; Etienne-Cummings, R.; Posch, C.; Thakor, N.; and Benosman, R., "HFIRST: A Temporal Approach to Object Recognition," Pattern Analysis and Machine Intelligence, IEEE Transactions on vol.37, no.10, pp.2028-2040, Oct. 2015
+% 
+% [S1out, C1out, S2out, C2out] = HFIRST(TD, S2_path, training)
+% applies the HFIRST model to the Temporal Difference (TD) data "TD" where "TD" is a struct with
+% fields:
+% TD.x -> vector of event X-addresses (in pixels)
+% TD.y -> vector of event Y-addresses (in pixels)
+% TD.ts -> vector of event timestamps (in microseconds)
+% TD.p -> vector of event polarities (1 or -1 for ON or OFF events
+% respectively)
+% all fields are strictly integers only
+% 
+% "S2_path" is a string telling the function where the S2 filter
+% coefficients must be loaded from. See the section "Training the
+% S2_Filters" in file "full_NMNIST_example.m" to see how the filters are
+% created.
+% 
+% 
+% "training" is a boolean flag to indicate whether the model is being
+% trained, in which case only the S1 and C1 results are returned because the S2 filters are not yet defined.
+% 
+% set "training = 0" or omit the training parameter to ensure the full model runs
+% 
+% set "training = 1" to only compute S1 and C1 results. In this case
+% "S2_path" is ignored
+% 
+% S1 and S2 parameters are all set inside the HFIRST function itself
+
+if ~exist('training', 'var')
+    training = 0;
+end
+
 S1out = [];
 C1out = [];
 S2out = [];
 C2out = [];
 
-% ShowTD(TD)
-
 TDneg = RemoveNulls(TD, TD.p ~= 1); %Create a new struct of OFF-events by removing all the the ON-events
 TDpos = RemoveNulls(TD, TD.p == 1); %Create a new struct of ON-events by removing all the the OFF-events
-
 
 %% S1
 
 % Create the gabor filters
-gabor_params.sigma = 2.8;               %standard deviation of gaussian
-gabor_params.lambda = 5;                %controls period of underlying cosine relative to filter size
-gabor_params.psi = 0;                   %controls phase of the underlying cosine
-gabor_params.gamma = 0.3;               %controls relative x-y extent of separable gaussian
-gabor_params.size = 7;                  %size in pixels of square gabor filter (must be odd)
-gabor_params.num_orientations = 12;     %number of orientations to use
+S1_gabor_params.sigma = 2.8;               %standard deviation of gaussian
+S1_gabor_params.lambda = 5;                %controls period of underlying cosine relative to filter sizeS1_
+S1_gabor_params.psi = 0;                   %controls phase of the underlying cosine
+S1_gabor_params.gamma = 0.3;               %controls relative x-y extent of separable gaussian
+S1_gabor_params.size = 7;                  %size in pixels of square gabor filter (must be odd)
+S1_gabor_params.num_orientations = 12;     %number of orientations to use
 
-gabor_weights = init_Gabor(gabor_params); %run the Gabor initialization function
+gabor_weights = init_Gabor(S1_gabor_params); %run the Gabor initialization function
 
-%set S1 parameters
-S1_threshold           = 150; %mV
-S1_decay_rate          = 25; %mV per millisecond
-S1_refractory_period   = 5; %milliseconds
+S1_params.threshold         = 150; %mV
+S1_params.decay_rate        = 25; %mV per millisecond
+S1_params.refractory_period = 5; %milliseconds
 
 %run the S1 layer
-S1pos = S1(TDpos, gabor_weights, S1_threshold, S1_decay_rate, S1_refractory_period); %process the ON-events
-S1neg = S1(TDneg, gabor_weights, S1_threshold, S1_decay_rate, S1_refractory_period); %process the OFF-events
+S1pos = S1(TDpos, gabor_weights, S1_params); %process the ON-events
+S1neg = S1(TDneg, gabor_weights, S1_params); %process the OFF-events
 S1out = CombineStreams(S1pos, S1neg); %recombine the ON and OFF events
 % S1out = CombineStreams(S1neg, S1neg); %WRONG... but better
 
@@ -66,13 +93,13 @@ if training == 0 %training == 0 means we are testing, not training
     load(S2_path)
     
     %set S2 parameters
-    S2_threshold            = 150; %mV
-    S2_decay_rate           = 1; %mV per millisecond
-    S2_refractory_period    = 5; %milliseconds
+    S2_params.threshold            = 150; %mV
+    S2_params.decay_rate           = 1; %mV per millisecond
+    S2_params.refractory_period    = 5; %milliseconds
     S2_Filters(S2_Filters<1) = -1;
 
     %run the S2 layer
-    S2out = S2(C1out, S2_Filters, S2_threshold, S2_decay_rate, S2_refractory_period); %process the ON-events
+    S2out = S2(C1out, S2_Filters, S2_params); %process the ON-events
     
     %uncomment the line below to show the S2 data. Each class is recorded as a different polarity.
     %The number of classes will be equal to the number of colours displayed.
