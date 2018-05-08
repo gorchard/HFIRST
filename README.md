@@ -10,3 +10,6 @@ Orchard, G.; Cohen, G.; Jayawant, A.; and Thakor, N.  “Converting Static Image
 The intention with this new Matlab code is to show how the model works. The original HMAX code was a faster C++ MEX implementation, but is far more obtuse and complex to use. The HFIRST code also relies on some basic AER Matlab functions which can be found [here](https://github.com/gorchard/Matlab_AER_vision_functions).
 
 ### This was a very early hand coded spiking model for recognition. Its accuracy and efficiency have long since been surpassed by trained models which achieve 98%+ on N-MNIST.
+
+edit:
+If you really really want to get your hands dirty with the original code you can download it [here](https://www.dropbox.com/sh/0aacuoxhxtmvhrk/AADalUjcIfXfNcxxUXwAh13fa?dl=1), but it is quite a mess and will not be supported.
